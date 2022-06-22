@@ -1,5 +1,8 @@
 const express = require('express')
+const {response} = require("express");
 const app = express()
+
+app.use(express.json())
 
 const PORT = 3001
 
@@ -26,9 +29,26 @@ const persons = [
     }
 ]
 
-app.get('/api/persons', (_request, response
-) => {
+const countOfPersons = () => {
+    return persons.length;
+}
+
+const getDate = () => {
+    const timeElapsed = Date.now()
+    return new Date(timeElapsed)
+}
+
+const infoData = {
+    countOfPersons: `phonebook has info for ${countOfPersons()}`,
+    Date: getDate()
+}
+
+app.get('/api/persons', (_request, response) => {
     response.json(persons)
+})
+
+app.get('/api/info', (_request, response) => {
+    response.json(infoData)
 })
 
 app.listen(PORT, () => {
