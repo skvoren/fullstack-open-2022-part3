@@ -1,5 +1,5 @@
 const express = require('express')
-const {response} = require("express");
+const {response, request} = require("express");
 const app = express()
 
 app.use(express.json())
@@ -45,6 +45,15 @@ const infoData = {
 
 app.get('/api/persons', (_request, response) => {
     response.json(persons)
+})
+
+app.get('/api/persons/:id', (request, response) => {
+    const id = Number(request.params.id)
+    const personData = persons.find(person => person.id === id)
+
+    if (personData) {
+        response.json(personData)
+    }
 })
 
 app.get('/api/info', (_request, response) => {
