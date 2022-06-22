@@ -3,6 +3,7 @@ const {response, request} = require("express");
 const app = express()
 
 app.use(express.json())
+app.use(express.urlencoded())
 
 const PORT = 3001
 
@@ -58,6 +59,27 @@ app.get('/api/persons/:id', (request, response) => {
 
 app.get('/api/info', (_request, response) => {
     response.json(infoData)
+})
+
+app.post('/api/create-person', (request, response) => {
+
+    const body = request.body
+
+    if (!body){
+        response.status(400).json({
+            error: "empty body of request!"
+        })
+    }
+
+    const newPerson = {
+        name: body.name,
+        number: body.number,
+        id: Date.now()
+    }
+
+    persons = persons.concat(newPerson)
+
+    response.json(persons)
 })
 
 app.delete('/api/persons/:id', (request, response) => {
