@@ -8,8 +8,10 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded())
 
-var logStream = fs.createWriteStream(path.join(__dirname, 'app.log'))
-app.use(morgan('tiny', {stream: logStream}))
+morgan.token('post-data', function (req, res) { return JSON.stringify(req.body) })
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms - :post-data'))
+
+
 
 const PORT = 3001
 
@@ -75,23 +77,26 @@ app.post('/api/create-person', (request, response) => {
         response.status(400).json({
             error: "empty body of request!"
         })
-    }
-
-    if (persons.find(p => p.name === body.name || p.number === body.number)){
+    } else if (persons.find(p => p.name === body.name || p.number === body.number)){
         response.status(400).json({
             error: "person added already"
         })
+    } else {
+        const newPerson = {
+            name: body.name,
+            number: body.number,
+            id: Date.now()
+        }
+
+        persons = persons.concat(newPerson)
+
+        response.json(persons)
     }
 
-    const newPerson = {
-        name: body.name,
-        number: body.number,
-        id: Date.now()
-    }
 
-    persons = persons.concat(newPerson)
 
-    response.json(persons)
+
+
 })
 
 app.delete('/api/persons/:id', (request, response) => {
