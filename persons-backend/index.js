@@ -1,9 +1,15 @@
 const express = require('express')
+const morgan = require('morgan')
 const {response, request} = require("express");
+const fs = require("fs");
+const path = require("path");
 const app = express()
 
 app.use(express.json())
 app.use(express.urlencoded())
+
+var logStream = fs.createWriteStream(path.join(__dirname, 'app.log'))
+app.use(morgan('tiny', {stream: logStream}))
 
 const PORT = 3001
 
