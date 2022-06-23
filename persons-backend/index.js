@@ -65,9 +65,15 @@ app.post('/api/create-person', (request, response) => {
 
     const body = request.body
 
-    if (!body){
+    if (!body.name || !body.number){
         response.status(400).json({
             error: "empty body of request!"
+        })
+    }
+
+    if (persons.find(p => p.name === body.name || p.number === body.number)){
+        response.status(400).json({
+            error: "person added already"
         })
     }
 
