@@ -1,10 +1,11 @@
 const express = require('express')
 const morgan = require('morgan')
-const {response, request} = require("express");
-const fs = require("fs");
-const path = require("path");
+const fs = require("fs")
+const path = require("path")
+const cors = require("cors")
 const app = express()
 
+app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded())
 
@@ -19,22 +20,22 @@ let persons = [
     {
         "id": 1,
         "name": "Arto Hellas",
-        "number": "040-123456"
+        "phone": "040-123456"
     },
     {
         "id": 2,
         "name": "Ada Lovelace",
-        "number": "39-44-5323523"
+        "phone": "39-44-5323523"
     },
     {
         "id": 3,
         "name": "Dan Abramov",
-        "number": "12-43-234345"
+        "phone": "12-43-234345"
     },
     {
         "id": 4,
         "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
+        "phone": "39-23-6423122"
     }
 ]
 
@@ -73,18 +74,18 @@ app.post('/api/create-person', (request, response) => {
 
     const body = request.body
 
-    if (!body.name || !body.number){
+    if (!body.name || !body.phone){
         response.status(400).json({
             error: "empty body of request!"
         })
-    } else if (persons.find(p => p.name === body.name || p.number === body.number)){
+    } else if (persons.find(p => p.name === body.name || p.phone === body.phone)){
         response.status(400).json({
             error: "person added already"
         })
     } else {
         const newPerson = {
             name: body.name,
-            number: body.number,
+            phone: body.phone,
             id: Date.now()
         }
 
