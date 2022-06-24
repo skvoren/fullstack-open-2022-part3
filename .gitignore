@@ -1,3 +1,4 @@
 /persons-backend/node_modules/
+/persons-backend/build
 /.idea/*
 /persons-backend/app.log

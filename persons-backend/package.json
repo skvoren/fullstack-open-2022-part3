@@ -4,6 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build:ui": "rm -rf build && cd ../../part2/phonebook && npm run build && cp -vr ../../part2/phonebook/build/ ../persons-backend",
+    "deploy": "git push heroku master:main",
+    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy",
+    "logs:prod": "heroku logs --tail",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js"
   },
