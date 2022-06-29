@@ -4,6 +4,7 @@ const morgan = require('morgan')
 const cors = require('cors')
 const app = express()
 const Person = require('./models/person')
+const {request, response} = require("express");
 
 app.use(cors())
 app.use(express.json())
@@ -32,7 +33,7 @@ const isPersonExist = (name, phone) => {
     return Person.find({name: name, phone: phone}).count() === 1
 }
 
-app.get('/api/persons', (_request, response) => {
+app.get('/api/gel-all-persons', (_request, response) => {
     Person.find({}).then(result => {
         response.json(result)
     })
@@ -40,8 +41,13 @@ app.get('/api/persons', (_request, response) => {
 
 app.get('/api/persons/:id', (request, response) => {
     Person.findById(request.params.id).then(person => {
-        response.json(person)
+        if (person){
+            response.json(person)
+        } else {
+            response.status(404).end()
+        }
     })
+        .catch(error => errorHandler(error))
 })
 
 app.get('/api/info', (_request, response) => {
@@ -65,9 +71,9 @@ app.post('/api/create-person', (request, response) => {
             phone: body.phone,
         })
 
-        person.save().then(result => {
-            response.json(result)
-        })
+        person.save()
+            .then(result => {response.json(result)})
+            .catch(error => errorHandler(error))
     }
 })
 
@@ -76,6 +82,31 @@ app.delete('/api/persons/:id', (request, response) => {
         response.status(204).end()
     })
 })
+
+app.put('/api/persons/:id', (request, response) => {
+    const body = request.body
+
+    const person = {
+        name: body.name,
+        phone: body.phone
+    }
+
+    Person.findByIdAndUpdate(request.params.id, person, {new: true})
+        .then(updatedPerson => {response.json(updatedPerson)})
+        .catch(error => errorHandler(error))
+})
+
+const errorHandler = (error, request, response, next) => {
+    console.log(error.message)
+
+    if (error.name === 'CastError'){
+        return response.status(400).send({error: 'malformatted id'})
+    }
+
+    next(error)
+}
+
+app.use(errorHandler)
 
 app.listen(PORT, () => {
     console.log(`server running on port ${PORT}`)
