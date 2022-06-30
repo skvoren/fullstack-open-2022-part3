@@ -4,7 +4,6 @@ const morgan = require('morgan')
 const cors = require('cors')
 const app = express()
 const Person = require('./models/person')
-const {request, response} = require("express");
 
 app.use(cors())
 app.use(express.json())
@@ -33,13 +32,13 @@ const isPersonExist = (name, phone) => {
     return Person.find({name: name, phone: phone}).count() === 1
 }
 
-app.get('/api/gel-all-persons', (_request, response) => {
+app.get('/api/persons', (_request, response) => {
     Person.find({}).then(result => {
         response.json(result)
     })
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
     Person.findById(request.params.id).then(person => {
         if (person){
             response.json(person)
@@ -47,14 +46,14 @@ app.get('/api/persons/:id', (request, response) => {
             response.status(404).end()
         }
     })
-        .catch(error => errorHandler(error))
+        .catch(error => errorHandler(error, request, response, next))
 })
 
 app.get('/api/info', (_request, response) => {
     response.json(infoData)
 })
 
-app.post('/api/create-person', (request, response) => {
+app.post('/api/create-person', (request, response, next) => {
     const body = request.body
 
     if (!body.name || !body.phone){
@@ -72,8 +71,8 @@ app.post('/api/create-person', (request, response) => {
         })
 
         person.save()
-            .then(result => {response.json(result)})
-            .catch(error => errorHandler(error))
+            .then(result => response.json(result))
+            .catch(error => errorHandler(error, request, response, next))
     }
 })
 
@@ -83,7 +82,7 @@ app.delete('/api/persons/:id', (request, response) => {
     })
 })
 
-app.put('/api/persons/:id', (request, response) => {
+app.put('/api/persons/:id', (request, response, next) => {
     const body = request.body
 
     const person = {
@@ -91,18 +90,17 @@ app.put('/api/persons/:id', (request, response) => {
         phone: body.phone
     }
 
-    Person.findByIdAndUpdate(request.params.id, person, {new: true})
+    Person.findByIdAndUpdate(request.params.id, person, {new: true, runValidators: true, context: 'query'})
         .then(updatedPerson => {response.json(updatedPerson)})
-        .catch(error => errorHandler(error))
+        .catch(error => next(error))
 })
 
 const errorHandler = (error, request, response, next) => {
-    console.log(error.message)
-
-    if (error.name === 'CastError'){
-        return response.status(400).send({error: 'malformatted id'})
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id' })
+    }  else if (error.name === 'ValidationError') {
+        return response.status(400).json({error: error.message})
     }
-
     next(error)
 }
 
