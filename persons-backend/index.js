@@ -8,6 +8,7 @@ const Person = require('./models/person')
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded())
+app.use(express.static('build'))
 
 morgan.token('post-data', function (req, res) { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms - :post-data'))
