@@ -19,8 +19,15 @@ const personSchema = new mongoose.Schema({
         required: true
     },
     phone: {
-        type: Number,
-        required: true
+        type: String,
+        required: true,
+        validate: {
+            validator: function(value) {
+                if (value === undefined) return true
+                return /(^\d{3}|^\d{2})-\d*/.test(value)
+            },
+            message: "Please enter a valid phone Number"
+        }
     }
 })
 
@@ -31,5 +38,7 @@ personSchema.set('toJSON', {
         delete returnedObject.__v
     }
 })
+
+
 
 module.exports = mongoose.model('Person', personSchema)
